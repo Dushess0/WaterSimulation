@@ -97,7 +97,35 @@ public class WaterGrid : MonoBehaviour
 
     private void Update()
     {
+        SpreadWaterVertically();
         SpreadWaterHorizontally();
+    }
+    private void SpreadWaterVertically()
+    {
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = Height - 1; y >= 0; y--) // Start from top to bottom
+            {
+                for (int z = 0; z < Depth; z++)
+                {
+                    Cell currentCell = cells[x, y, z];
+
+                    // Skip cells with no water or bottom layer cells
+                    if (currentCell.WaterVolume <= 0 || y == 0)
+                        continue;
+
+                    Cell cellBelow = cells[x, y - 1, z];
+
+                    // Calculate how much water can move down
+                    float waterToMove = Mathf.Min(currentCell.WaterVolume, 1 - cellBelow.WaterVolume - cellBelow.StoneVolume);
+
+                    if (waterToMove > 0)
+                    {
+                        currentCell.TransferWaterTo(cellBelow, waterToMove);
+                    }
+                }
+            }
+        }
     }
 
 }
