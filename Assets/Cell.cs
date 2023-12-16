@@ -78,7 +78,7 @@ public class Cell : MonoBehaviour
     }
     public void TransferWaterTo(Cell otherCell, float amount)
     {
-        amount = Mathf.Min(Mathf.Floor(amount * 10) / 10.0f, waterVolume);
+        amount = Mathf.Min(Mathf.Floor(amount * 100) / 100.0f, waterVolume);
 
         waterVolume -= amount;
         otherCell.WaterVolume += amount;

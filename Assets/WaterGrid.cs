@@ -41,7 +41,10 @@ public class WaterGrid : MonoBehaviour
     {
 
         InitCells();
-
+        Debug.Log("Width, Height, Depth");
+        Debug.Log(Width);
+        Debug.Log(Height);
+        Debug.Log(Depth);
     }
     private void SpreadWaterHorizontally()
     {
@@ -51,23 +54,42 @@ public class WaterGrid : MonoBehaviour
             {
                 for (int z = 0; z < Depth; z++)
                 {
+
                     Cell currentCell = cells[x, y, z];
 
                     // Skip cells with no water or cells that are full
                     if (currentCell.WaterVolume <= 0 || currentCell.WaterVolume + currentCell.StoneVolume >= 1)
                         continue;
 
-                    // Spread to left and right neighbors
-                    if (x > 0) // Check left neighbor
-                        SpreadWaterBetweenCells(currentCell, cells[x - 1, y, z]);
-                    if (x < Width - 1) // Check right neighbor
-                        SpreadWaterBetweenCells(currentCell, cells[x + 1, y, z]);
+                    // check neighborhood and deduce on how many elements you need to spread
 
+                    int neighborToSpread = 1;  // parent, ifself also will contain water
+
+                    if (z > 0 && cells[x, y, z - 1].StoneVolume + cells[x, y, z - 1].WaterVolume < 1)          // Check backward neighbor
+                        neighborToSpread += 1;
+
+                    if (z < Depth - 1 && cells[x, y, z + 1].StoneVolume + cells[x, y, z + 1].WaterVolume < 1)  // Check forward neighbor
+                        neighborToSpread += 1;
+
+                    if (x > 0 && cells[x - 1, y, z].StoneVolume + cells[x - 1, y, z].WaterVolume < 1)           // Check left neighbor
+                        neighborToSpread += 1;
+
+                    if (x < Width - 1 && cells[x + 1, y, z].StoneVolume + cells[x + 1, y, z].WaterVolume < 1)   // Check right neighbor
+                        neighborToSpread += 1;
+
+                    float currentWater = currentCell.WaterVolume;
+                    
                     // Spread to forward and backward neighbors
-                    if (z > 0) // Check backward neighbor
-                        SpreadWaterBetweenCells(currentCell, cells[x, y, z - 1]);
-                    if (z < Depth - 1) // Check forward neighbor
-                        SpreadWaterBetweenCells(currentCell, cells[x, y, z + 1]);
+                    if (z > 0)          // Check backward neighbor
+                        SpreadWaterBetweenCells(currentCell, cells[x, y, z - 1], neighborToSpread, currentWater);
+                    if (z < Depth - 1)  // Check forward neighbor
+                        SpreadWaterBetweenCells(currentCell, cells[x, y, z + 1], neighborToSpread, currentWater);
+
+                    // Spread to left and right neighbors
+                    if (x > 0)          // Check left neighbor
+                        SpreadWaterBetweenCells(currentCell, cells[x - 1, y, z], neighborToSpread, currentWater);
+                    if (x < Width - 1)  // Check right neighbor
+                        SpreadWaterBetweenCells(currentCell, cells[x + 1, y, z], neighborToSpread, currentWater);
                 }
             }
         }
@@ -81,15 +103,19 @@ public class WaterGrid : MonoBehaviour
         return null;
     }
 
-    private void SpreadWaterBetweenCells(Cell source, Cell target)
+    private void SpreadWaterBetweenCells(Cell source, Cell target, int neighbor, float currentWater)
     {
-        float totalWater = source.WaterVolume + target.WaterVolume;
-        float evenDistribution = totalWater / 2;
+        float totalWater = currentWater + target.WaterVolume;
+        float evenDistribution = totalWater / neighbor;
+
+        Debug.Log("Source: " + source.transform.position);
+        Debug.Log("Target: " + target.transform.position);
+        Debug.Log("Water source: " + source.WaterVolume + " total water: " + totalWater + "distributed: " + evenDistribution);
 
         // Calculate how much water can actually be moved considering the stone volume
         float waterToMove = Mathf.Min(evenDistribution, 1 - target.StoneVolume) - target.WaterVolume;
 
-        if (waterToMove > 0)
+        if (waterToMove > 0.001)
         {
             source.TransferWaterTo(target, waterToMove);
         }
