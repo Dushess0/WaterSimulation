@@ -19,7 +19,7 @@ public class Cell : MonoBehaviour
     public GameObject stonePrefab;
     public GameObject waterPrefab;
 
-    private const float MinimumVisibleVolume = 0.1f;
+    private const float MinimumVisibleVolume = 0.05f;
 
 
 
@@ -93,4 +93,20 @@ public class Cell : MonoBehaviour
         UpdateWaterPrefab();
     }
 
+}
+
+[System.Serializable]
+public class CellData
+{
+    public float WaterVolume;
+    public float StoneVolume;
+}
+
+[System.Serializable]
+public class WaterGridData
+{
+    public CellData[] Cells; // 1D array to store cell data
+    public int Width;
+    public int Height;
+    public int Depth;
 }

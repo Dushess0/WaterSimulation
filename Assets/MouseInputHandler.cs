@@ -5,16 +5,21 @@ public class MouseInputHandler : MonoBehaviour
     public WaterGrid waterGrid; // Reference to your WaterGrid
     public float waterToAdd = 0.5f; // Amount of water to add
     public float stoneToAdd = 1.0f; // Amount of stone to add
+    private FreeCamera FreeCamera;
 
     private Camera cam;
 
     private void Start()
     {
         cam = Camera.main; // Ensure you have a main camera tagged
+        FreeCamera = cam.GetComponent<FreeCamera>();
     }
 
     private void Update()
     {
+        if (FreeCamera == null) throw new System.Exception("Attach freecamera component to camera object");
+        if (FreeCamera.isCursorLocked) return;
+      
         if (Input.GetMouseButtonDown(0)) // Left click
         {
             ModifyCell(true);

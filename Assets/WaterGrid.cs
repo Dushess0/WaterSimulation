@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+
+
 public class WaterGrid : MonoBehaviour
 {
     private Cell[,,] cells;
@@ -11,9 +13,104 @@ public class WaterGrid : MonoBehaviour
     public int Depth = 10;
     public GameObject cellPrefab;
 
+    public void InitFromPattern(CellData[,,] inputCells)
+    {
+        this.ClearCells();
+        this.Width = inputCells.GetLength(0);
+        this.Height = inputCells.GetLength(1);
+        this.Depth = inputCells.GetLength(2);
+
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int z = 0; z < Depth; z++)
+                {
+                    Vector3 position = new Vector3(x, y, z);
+                    GameObject cellObject = Instantiate(cellPrefab, position, Quaternion.identity);
+                    Cell cell = cellObject.GetComponent<Cell>();
+
+                    cell.WaterVolume = inputCells[x, y, z].WaterVolume;
+                    cell.StoneVolume = inputCells[x, y, z].StoneVolume;
+                }
+            }
+        }
+    }
+
+    public WaterGridData GetSerializableData()
+    {
+        CellData[] cellDataArray = new CellData[Width * Height * Depth];
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int z = 0; z < Depth; z++)
+                {
+                    int index = x + Width * (y + Height * z);
+                    Cell cell = cells[x, y, z];
+                    cellDataArray[index] = new CellData
+                    {
+                        WaterVolume = cell.WaterVolume,
+                        StoneVolume = cell.StoneVolume
+                    };
+                }
+            }
+        }
+        return new WaterGridData
+        {
+            Cells = cellDataArray,
+            Width = Width,
+            Height = Height,
+            Depth = Depth
+        };
+    }
+
+
+    public void SetFromSerializableData(WaterGridData data)
+    {
+        this.Width = data.Width;
+        this.Height = data.Height;
+        this.Depth = data.Depth;
+
+        // Assuming you have a method to resize your 3D cells array accordingly
+        // ResizeCells(Width, Height, Depth);
+
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int z = 0; z < Depth; z++)
+                {
+                    int index = x + Width * (y + Height * z);
+                    Cell cell = cells[x, y, z];
+                    CellData cellData = data.Cells[index];
+                    cell.WaterVolume = cellData.WaterVolume;
+                    cell.StoneVolume = cellData.StoneVolume;
+                }
+            }
+        }
+    }
+
+    private void ClearCells()
+    {
+        if (cells != null)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    for (int z = 0; z < Depth; z++)
+                    {
+                        Destroy(cells[x, y, z]);
+                    }
+                }
+            }
+        }
+    }
     private void InitCells()
     {
-        cells = new Cell[Width, Height, Depth];
+        this.ClearCells();
+        this.cells = new Cell[Width, Height, Depth];
         for (int x = 0; x < Width; x++)
         {
             for (int y = 0; y < Height; y++)
@@ -41,10 +138,10 @@ public class WaterGrid : MonoBehaviour
     {
 
         InitCells();
-        Debug.Log("Width, Height, Depth");
-        Debug.Log(Width);
-        Debug.Log(Height);
-        Debug.Log(Depth);
+        ////Debug.Log("Width, Height, Depth");
+        //Debug.Log(Width);
+        //Debug.Log(Height);
+        //Debug.Log(Depth);
     }
     private void SpreadWaterHorizontally()
     {
@@ -108,9 +205,9 @@ public class WaterGrid : MonoBehaviour
         float totalWater = currentWater + target.WaterVolume;
         float evenDistribution = totalWater / neighbor;
 
-        Debug.Log("Source: " + source.transform.position);
-        Debug.Log("Target: " + target.transform.position);
-        Debug.Log("Water source: " + source.WaterVolume + " total water: " + totalWater + "distributed: " + evenDistribution);
+        //Debug.Log("Source: " + source.transform.position);
+        //Debug.Log("Target: " + target.transform.position);
+        //Debug.Log("Water source: " + source.WaterVolume + " total water: " + totalWater + "distributed: " + evenDistribution);
 
         // Calculate how much water can actually be moved considering the stone volume
         float waterToMove = Mathf.Min(evenDistribution, 1 - target.StoneVolume) - target.WaterVolume;

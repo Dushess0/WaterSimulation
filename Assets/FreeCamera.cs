@@ -10,19 +10,44 @@ public class FreeCamera : MonoBehaviour
 
     private Vector3 positionVector;
     private Vector3 rotationVector;
+    public bool isCursorLocked = false;
 
     void Start()
     {
         normalSpeed = 0.05F;
         multiplySpeed = 3;
         mouseSpeed = 1;
+        Cursor.lockState = CursorLockMode.None; // Free the cursor
+        Cursor.visible = true; // Show cursor
+
+    }
+    private void ToggleCursorMode()
+    {
+        isCursorLocked = !isCursorLocked;
+
+        if (isCursorLocked)
+        {
+            Cursor.lockState = CursorLockMode.Locked; // Lock the cursor for camera movement
+            Cursor.visible = false; // Hide cursor
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None; // Free the cursor
+            Cursor.visible = true; // Show cursor
+        }
     }
 
     void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            ToggleCursorMode();
+        }
+
         // Position
         positionVector.x = Input.GetAxis("Horizontal");
-        positionVector.y = Input.GetAxis("Updown");
+        //positionVector.y = Input.GetAxis("Updown");
         positionVector.z = Input.GetAxis("Vertical");
 
         positionVector *= normalSpeed;
@@ -38,8 +63,8 @@ public class FreeCamera : MonoBehaviour
         // Rotation
         rotationVector = transform.rotation.eulerAngles;
 
-        rotationVector.x -= Input.GetAxis("Rotate X"); //Input.GetAxis("Mouse Y");
-        rotationVector.y += Input.GetAxis("Rotate Y"); //Input.GetAxis("Mouse X");
+        //rotationVector.x -= Input.GetAxis("Rotate X"); //Input.GetAxis("Mouse Y");
+        //rotationVector.y += Input.GetAxis("Rotate Y"); //Input.GetAxis("Mouse X");
 
         if ( rotationVector.x < 180 && rotationVector.x > 0 )
         {
