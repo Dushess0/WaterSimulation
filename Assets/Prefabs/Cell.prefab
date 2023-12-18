@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2129790808446681624}
   - component: {fileID: 9187455739327205264}
+  - component: {fileID: 3506432011793097102}
   m_Layer: 0
   m_Name: Cell
   m_TagString: Untagged
@@ -44,9 +45,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ce9a70218c98e24fb3930bc30e71013, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waterVolume: 0
-  stoneVolume: 0
+  Top: {fileID: 0}
+  Bottom: {fileID: 0}
+  Left: {fileID: 0}
+  Right: {fileID: 0}
+  Forward: {fileID: 0}
+  Backward: {fileID: 0}
+  FlowDirections: 00000000
   stonePrefab: {fileID: 4233009679055714994, guid: fa6e6bbad6e30d3499b986eecaeb5800,
     type: 3}
   waterPrefab: {fileID: 220231229427162382, guid: 273b20bdadfcd474b9ad98354c644412,
     type: 3}
+--- !u!65 &3506432011793097102
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6763483041738986756}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}

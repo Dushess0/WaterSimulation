@@ -1,112 +1,214 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEditor.Experimental.GraphView.GraphView;
+﻿using UnityEngine;
+
+public enum CellType
+{
+    Blank,
+    Solid
+}
+
+public enum FlowDirection
+{
+    Top = 0,
+    Right = 1,
+    Bottom = 2,
+    Left = 3,
+    Forward = 4,
+    Backward = 5,
+
+}
 
 public class Cell : MonoBehaviour
 {
+
+    // Grid index reference
+    public int X { get; private set; }
+    public int Y { get; private set; }
+    public int Z { get; private set; }
+
+
+    // Amount of liquid in this cell
+    public float Liquid { get; set; }
+
+    // Determines if Cell liquid is settled
+    private bool _settled;
+    public bool Settled
+    {
+        get { return _settled; }
+        set
+        {
+            _settled = value;
+            if (!_settled)
+            {
+                SettleCount = 0;
+            }
+        }
+    }
+    public int SettleCount { get; set; }
+
     [SerializeField]
-    [Range(0f, 1f)]
-    private float waterVolume;
-    [SerializeField]
-    [Range(0f, 1f)]
-    private float stoneVolume;
+    public CellType Type { get; private set; }
+
+    // Neighboring cells
+    public Cell Top;
+    public Cell Bottom;
+    public Cell Left;
+    public Cell Right;
+    public Cell Forward;
+    public Cell Backward;
+
+    // Shows flow direction of cell
+    public int Bitmask { get; set; }
+    public bool[] FlowDirections = new bool[4];
+
+    // Liquid colors
+    Color Color;
+    Color DarkColor = new Color(0, 0.1f, 0.2f, 1);
+
+
+    bool ShowFlow;
+    bool RenderDownFlowingLiquid;
+    bool RenderFloatingLiquid;
 
     private GameObject stone;
     private GameObject water;
-
     public GameObject stonePrefab;
     public GameObject waterPrefab;
 
-    private const float MinimumVisibleVolume = 0.05f;
 
-
-
-    public float WaterVolume
+    void Awake()
     {
-        get { return waterVolume; }
-        set { waterVolume = Mathf.Clamp(value, 0, 1 - stoneVolume); UpdateWaterPrefab(); }
-
-    }
-
-    public float StoneVolume
-    {
-        get { return stoneVolume; }
-        set { stoneVolume = Mathf.Clamp(value, 0, 1 - waterVolume); UpdateStonePrefab(); }
-    }
-
-    private void Start()
-    {
+        // todo
         stone = Instantiate(stonePrefab, transform.position, Quaternion.identity, transform);
         water = Instantiate(waterPrefab, transform.position, Quaternion.identity, transform);
+        UpdatePrefab();
 
-        UpdateStonePrefab();
-        UpdateWaterPrefab();
     }
-
-
-    private void UpdateStonePrefab()
+    private void UpdatePrefab()
     {
-        if (stone == null) return;
-        if (stoneVolume < MinimumVisibleVolume)
-        {
-            stone.SetActive(false);
-        }
-        else
+        if (Type == CellType.Solid)
         {
             stone.SetActive(true);
-            stone.transform.localScale = new Vector3(1, stoneVolume, 1);
-            stone.transform.localPosition = new Vector3(0, stoneVolume / 2, 0);
-        }
-    }
-
-    private void UpdateWaterPrefab()
-    {
-        if (water == null) return;
-
-        if (waterVolume < MinimumVisibleVolume)
-        {
             water.SetActive(false);
+            stone.transform.localPosition = new Vector3(0, 0, 0);
+
         }
         else
         {
-            water.SetActive(true);
-            water.transform.localScale = new Vector3(1, waterVolume, 1);
-            water.transform.localPosition = new Vector3(0, waterVolume / 2 + stoneVolume, 0);
+            stone.SetActive(false);
+            if (Liquid < 0.01f)
+            {
+                water.SetActive(false);
+            }
+            else
+            {
+                water.SetActive(true);
+            }
+            water.transform.localScale = new Vector3(1, Mathf.Min(1, Liquid), 1);
+            water.transform.localPosition = new Vector3(0, Liquid / 2 - 0.5f , 0);
         }
+
     }
-    public void TransferWaterTo(Cell otherCell, float amount)
+
+    public void Set(int x, int y, Vector3 position, float size, Sprite[] flowSprites, bool showflow, bool renderDownFlowingLiquid, bool renderFloatingLiquid)
     {
-        amount = Mathf.Min(Mathf.Floor(amount * 100) / 100.0f, waterVolume);
 
-        waterVolume -= amount;
-        otherCell.WaterVolume += amount;
+        X = x;
+        Y = y;
+        transform.position = position;
+        transform.localScale = new Vector3(size, size, size);
 
-        UpdateWaterPrefab();
-        otherCell.UpdateWaterPrefab();
     }
 
-    private void Update()
+    public void SetType(CellType type)
     {
-        UpdateStonePrefab();
-        UpdateWaterPrefab();
+        Type = type;
+        if (Type == CellType.Solid)
+        {
+            Liquid = 0;
+        }
+        UnsettleNeighbors();
     }
 
-}
+    public void AddLiquid(float amount)
+    {
+        Liquid += amount;
+        Settled = false;
+    }
 
-[System.Serializable]
-public class CellData
-{
-    public float WaterVolume;
-    public float StoneVolume;
-}
+    public void ResetFlowDirections()
+    {
+        FlowDirections[0] = false;
+        FlowDirections[1] = false;
+        FlowDirections[2] = false;
+        FlowDirections[3] = false;
 
-[System.Serializable]
-public class WaterGridData
-{
-    public CellData[] Cells; // 1D array to store cell data
-    public int Width;
-    public int Height;
-    public int Depth;
+
+
+    }
+
+    // Force neighbors to simulate on next iteration
+    public void UnsettleNeighbors()
+    {
+        if (Top != null)
+            Top.Settled = false;
+        if (Bottom != null)
+            Bottom.Settled = false;
+        if (Left != null)
+            Left.Settled = false;
+        if (Right != null)
+            Right.Settled = false;
+        if (Forward != null)
+            Forward.Settled = false;
+        if (Backward != null)
+            Backward.Settled = false;
+    }
+
+    public void Update()
+    {
+
+        // Set background color based on cell type
+        if (Type == CellType.Solid)
+        {
+            //BackgroundSprite.color = Color.black;
+        }
+        else
+        {
+            //BackgroundSprite.color = Color.white;
+        }
+
+        // Update bitmask based on flow directions
+
+
+        if (ShowFlow)
+        {
+            // Show flow direction of this cell
+            //FlowSprite.sprite = FlowSprites [Bitmask];
+        }
+        else
+        {
+            //FlowSprite.sprite = FlowSprites [0];
+        }
+
+        // Set size of Liquid sprite based on liquid value
+        UpdatePrefab();
+        //LiquidSprite.transform.localScale = new Vector2 (1, Mathf.Min (1, Liquid));	
+
+        //// Optional rendering flags
+        //if (!RenderFloatingLiquid) {
+        //	// Remove "Floating" liquids
+        //	if (Bottom != null && Bottom.Type != CellType.Solid && Bottom.Liquid <= 0.99f) {
+        //		LiquidSprite.transform.localScale = new Vector2 (0, 0);	
+        //	}
+        //}
+        //if (RenderDownFlowingLiquid) {
+        //	// Fill out cell if cell above it has liquid
+        //	if (Type == CellType.Blank && Top != null && (Top.Liquid > 0.05f || Top.Bitmask == 4)) {
+        //		LiquidSprite.transform.localScale = new Vector2 (1, 1);	
+        //	}
+        //}
+
+        //// Set color based on pressure in cell
+        //LiquidSprite.color = Color.Lerp (Color, DarkColor, Liquid / 4f);
+    }
+
 }
