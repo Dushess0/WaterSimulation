@@ -90,7 +90,7 @@ namespace WaterSimulation
                         // add a border
                         if (y == Height - 1)
                         {
-                            cell.SetType(CellType.Solid,CellStyle.Grass);
+                            cell.SetType(CellType.Solid,CellStyle.Stone);
                         }
 
                         cell.transform.parent = cellContainer.transform;
