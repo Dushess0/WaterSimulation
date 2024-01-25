@@ -117,8 +117,8 @@ public class Liquid
                         if (flow != 0)
                         {
                             remainingValue -= flow;
-                            Diffs[x, y, z] -= flow; // fix here
-                            Diffs[x, y + 1, z] += flow; // fix here
+                            Diffs[x, y, z] -= flow; 
+                            Diffs[x, y + 1, z] += flow; 
                             cell.FlowDirections[(int)FlowDirection.Bottom] = true;
                             cell.Bottom.Settled = false;
                         }
@@ -274,8 +274,8 @@ public class Liquid
                         if (flow != 0)
                         {
                             remainingValue -= flow;
-                            Diffs[x, y, z] -= flow;//fix here
-                            Diffs[x, y - 1, z] += flow;//fix here
+                            Diffs[x, y, z] -= flow;
+                            Diffs[x, y - 1, z] += flow;
                             cell.FlowDirections[(int)FlowDirection.Top] = true;
                             cell.Top.Settled = false;
                         }
