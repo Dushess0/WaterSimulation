@@ -106,39 +106,96 @@ public class UIInputHandler : MonoBehaviour
             grid.CreateGrid(cellValues);
         }
     }
-
-    private void ModifyCell()
+    private void DeleteCell()
     {
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
+        RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
 
-        if (Physics.Raycast(ray, out hit))
+        foreach (var hit in hits)
         {
-            Vector3 hitPoint = hit.point;
             Cell cell = hit.collider.GetComponent<Cell>();
-            var target = grid.Cells[cell.X, cell.Y, cell.Z];
-            if (selectedBlock == 0)
+            if (cell != null && (cell.Type == CellType.Solid || cell.Liquid > 0))
             {
-                target.AddLiquid(5);
-            }
-            else
-            {
-
-                target.SetType(CellType.Solid, (CellStyle)selectedBlock);
-
-
+                cell.SetType(CellType.Blank); // Set the cell type to blank
+                cell.Liquid = 0;              // Remove any water in the cell
+                break; // Stop after modifying the first relevant cell
             }
         }
     }
+    private void ModifyCell()
+    {
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
+
+        foreach (var hit in hits)
+        {
+            Cell hitCell = hit.collider.GetComponent<Cell>();
+            if (hitCell != null && hitCell.Type == CellType.Solid)
+            {
+                Vector3 hitPoint = hit.point;
+                Collider cellCollider = hit.collider;
+                Vector3 cellCenter = cellCollider.bounds.center;
+
+                int x = hitCell.X;
+                int y = hitCell.Y;
+                int z = hitCell.Z;
+
+                // Determine the face of the cell that was clicked
+                if (Mathf.Abs(hitPoint.x - cellCenter.x) > Mathf.Abs(hitPoint.y - cellCenter.y) &&
+                    Mathf.Abs(hitPoint.x - cellCenter.x) > Mathf.Abs(hitPoint.z - cellCenter.z))
+                {
+                    // Clicked on the left or right face
+                    x += hitPoint.x > cellCenter.x ? 1 : -1;
+                }
+                else if (Mathf.Abs(hitPoint.y - cellCenter.y) > Mathf.Abs(hitPoint.x - cellCenter.x) &&
+                         Mathf.Abs(hitPoint.y - cellCenter.y) > Mathf.Abs(hitPoint.z - cellCenter.z))
+                {
+                    // Clicked on the top or bottom face
+                    y += hitPoint.y > cellCenter.y ? -1 : 1;
+                }
+                else
+                {
+                    // Clicked on the forward or backward face
+                    z += hitPoint.z > cellCenter.z ? 1 : -1;
+                }
+
+                // Check if the new position is within the grid bounds
+                if (x >= 0 && x < grid.Width && y >= 0 && y < grid.Height && z >= 0 && z < grid.Depth)
+                {
+
+                    Cell targetCell = grid.Cells[x, y, z];
+                    if (targetCell.Type == CellType.Blank)
+                    {
+                        if (selectedBlock == 0)
+                        {
+                            targetCell.AddLiquid(1f);
+                        }
+                        else
+                        {
+                            targetCell.SetType(CellType.Solid, (CellStyle)selectedBlock);
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+
+    }
+
     void Awake()
     {
-        cam = Camera.main; // Ensure you have a main camera tagged
+        cam = Camera.main;
     }
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             ModifyCell();
+        }
+        if (Input.GetKey(KeyCode.Delete))
+        {
+            DeleteCell();
         }
 
 
@@ -147,5 +204,5 @@ public class UIInputHandler : MonoBehaviour
     {
         selectedBlock = block;
     }
-     
+
 }

@@ -7,9 +7,9 @@ namespace WaterSimulation
     public class Grid : MonoBehaviour
     {
 
-        int Width = 30;
-        int Height = 30;
-        int Depth = 30;
+        public int Width = 30;
+        public int Height = 30;
+        public int Depth = 30;
 
         [SerializeField]
         [Range(0.1f, 1f)]

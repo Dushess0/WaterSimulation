@@ -112,6 +112,7 @@ public class Cell : MonoBehaviour
         UpdatePrefab();
 
     }
+
     private void UpdatePrefab()
     {
         if (Type == CellType.Solid)
