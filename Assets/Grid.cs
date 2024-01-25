@@ -5,8 +5,9 @@ using UnityEngine.UIElements;
 public class Grid : MonoBehaviour
 {
 
-    int Width = 80;
-    int Height = 40;
+    int Width = 30;
+    int Height = 30;
+    int Depth = 30;
 
     [SerializeField]
     [Range(0.1f, 1f)]
@@ -31,7 +32,7 @@ public class Grid : MonoBehaviour
     [SerializeField]
     bool RenderFloatingLiquid = false;
 
-    Cell[,] Cells;
+    Cell[,,] Cells;
 
     Liquid LiquidSimulator;
     Sprite[] LiquidFlowSprites;
@@ -48,7 +49,7 @@ public class Grid : MonoBehaviour
     {
         cam = Camera.main; // Ensure you have a main camera tagged
 
-   
+
         // Load some sprites to show the liquid flow directions
 
         // Generate our viewable grid GameObjects
@@ -58,43 +59,49 @@ public class Grid : MonoBehaviour
         LiquidSimulator = new Liquid();
         LiquidSimulator.Initialize(Cells);
     }
-
+    //GetSerializableData()
     void CreateGrid()
     {
 
-        Cells = new Cell[Width, Height];
-        Vector2 offset = this.transform.position;
+        Cells = new Cell[Width, Height, Depth];
+
+        Vector3 offset = this.transform.position;
 
         // Organize the grid objects
         GameObject cellContainer = new GameObject("Cells");
         cellContainer.transform.parent = this.transform;
 
-
-
         // Cells
-        for (int x = 0; x < Width; x++)
+        for (int y = 0; y < Height; y++) 
         {
-            for (int y = 0; y < Height; y++)
+            for (int x = 0; x < Width; x++)
             {
-
-                GameObject cellObject = Instantiate(cellPrefab, cellContainer.transform.position, Quaternion.identity);
-                Cell cell = cellObject.GetComponent<Cell>();
-                float xpos = offset.x + (x * CellSize) + (LineWidth * x) + LineWidth;
-                float ypos = offset.y - (y * CellSize) - (LineWidth * y) - LineWidth;
-                cell.Set(x, y, new Vector2(xpos, ypos), CellSize, LiquidFlowSprites, ShowFlow, RenderDownFlowingLiquid, RenderFloatingLiquid);
-
-                // add a border
-                if (x == 0 || y == 0 || x == Width - 1 || y == Height - 1)
+                for (int z = 0; z < Height; z++)
                 {
-                    cell.SetType(CellType.Solid);
-                }
 
-                cell.transform.parent = cellContainer.transform;
-                Cells[x, y] = cell;
+
+                    GameObject cellObject = Instantiate(cellPrefab, cellContainer.transform.position, Quaternion.identity);
+                    Cell cell = cellObject.GetComponent<Cell>();
+                    float xpos = offset.x + (x * CellSize) + (LineWidth * x) + LineWidth;
+                    float ypos = offset.y - (y * CellSize) - (LineWidth * y) - LineWidth;
+                    float zpos = offset.z + (z * CellSize) - (LineWidth * z) - LineWidth;
+
+                    cell.Set(x, y, z, new Vector3(xpos, ypos, zpos), CellSize, LiquidFlowSprites, ShowFlow, RenderDownFlowingLiquid, RenderFloatingLiquid);
+
+                    // add a border
+                    if (y == Height-1)
+                    {
+                        cell.SetType(CellType.Solid);
+                    }
+
+                    cell.transform.parent = cellContainer.transform;
+                    Cells[x, y, z] = cell;
+                }
             }
         }
         UpdateNeighbors();
     }
+
 
     // Live update the grid properties
     void RefreshGrid()
@@ -110,7 +117,7 @@ public class Grid : MonoBehaviour
             {
                 float xpos = offset.x + (x * CellSize) + (LineWidth * x) + LineWidth;
                 float ypos = offset.y - (y * CellSize) - (LineWidth * y) - LineWidth;
-                Cells[x, y].Set(x, y, new Vector2(xpos, ypos), CellSize, LiquidFlowSprites, ShowFlow, RenderDownFlowingLiquid, RenderFloatingLiquid);
+                Cells[x, y, 0].Set(x, y, 0, new Vector2(xpos, ypos), CellSize, LiquidFlowSprites, ShowFlow, RenderDownFlowingLiquid, RenderFloatingLiquid);
 
             }
         }
@@ -128,25 +135,42 @@ public class Grid : MonoBehaviour
         {
             for (int y = 0; y < Height; y++)
             {
-                if (x > 0)
+                for (int z = 0; z < Height; z++) // Updated to loop through z dimension as well
                 {
-                    Cells[x, y].Left = Cells[x - 1, y];
-                }
-                if (x < Width - 1)
-                {
-                    Cells[x, y].Right = Cells[x + 1, y];
-                }
-                if (y > 0)
-                {
-                    Cells[x, y].Top = Cells[x, y - 1];
-                }
-                if (y < Height - 1)
-                {
-                    Cells[x, y].Bottom = Cells[x, y + 1];
+                    // Set left and right neighbors
+                    if (x > 0)
+                    {
+                        Cells[x, y, z].Left = Cells[x - 1, y, z];
+                    }
+                    if (x < Width - 1)
+                    {
+                        Cells[x, y, z].Right = Cells[x + 1, y, z];
+                    }
+
+                    // Set top and bottom neighbors
+                    if (y > 0)
+                    {
+                        Cells[x, y, z].Top = Cells[x, y - 1, z];
+                    }
+                    if (y < Height - 1)
+                    {
+                        Cells[x, y, z].Bottom = Cells[x, y + 1, z];
+                    }
+
+                    // Set forward and backward neighbors
+                    if (z > 0)
+                    {
+                        Cells[x, y, z].Backward = Cells[x, y, z - 1];
+                    }
+                    if (z < Height - 1) // Assuming the depth is also 'Height', adjust if needed
+                    {
+                        Cells[x, y, z].Forward = Cells[x, y, z + 1];
+                    }
                 }
             }
         }
     }
+
     private void ModifyCell(bool addWater)
     {
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
@@ -156,18 +180,17 @@ public class Grid : MonoBehaviour
         {
             Vector3 hitPoint = hit.point;
             Cell cell = hit.collider.GetComponent<Cell>();
-
+            var target = Cells[cell.X, cell.Y, cell.Z];
             if (addWater)
             {
-
-                Cells[cell.X, cell.Y].AddLiquid(5);
+                target.AddLiquid(5);
             }
             else
             {
-                if(cell.Type == CellType.Blank)
-                    Cells[cell.X, cell.Y].SetType(CellType.Solid);
+                if (cell.Type == CellType.Blank)
+                    target.SetType(CellType.Solid);
                 else
-                    Cells[cell.X, cell.Y].SetType(CellType.Blank);
+                    target.SetType(CellType.Blank);
 
             }
         }

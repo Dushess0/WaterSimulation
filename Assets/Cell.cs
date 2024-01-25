@@ -21,9 +21,9 @@ public class Cell : MonoBehaviour
 {
 
     // Grid index reference
-    public int X { get; private set; }
-    public int Y { get; private set; }
-    public int Z { get; private set; }
+    public int X;
+    public int Y;
+    public int Z;
 
 
     // Amount of liquid in this cell
@@ -102,21 +102,28 @@ public class Cell : MonoBehaviour
             else
             {
                 water.SetActive(true);
+                float waterHeight = Mathf.Min(1, Liquid); // Ensure the water isn't taller than the cell
+                water.transform.localScale = new Vector3(1, waterHeight, 1);
+                if (waterHeight == 1)
+                    water.transform.localScale = new Vector3(1, waterHeight * 1.1f, 1);
+
+
+                // The y-position should be half the height of the water volume above the bottom of the cell
+                float waterYPosition = (waterHeight / 2) - 0.5f; // Subtract 0.5 because the cell's pivot is in the middle
+                water.transform.localPosition = new Vector3(0, waterYPosition, 0);
             }
-            water.transform.localScale = new Vector3(1, Mathf.Min(1, Liquid), 1);
-            water.transform.localPosition = new Vector3(0, Liquid / 2 - 0.5f , 0);
+
         }
 
     }
 
-    public void Set(int x, int y, Vector3 position, float size, Sprite[] flowSprites, bool showflow, bool renderDownFlowingLiquid, bool renderFloatingLiquid)
+    public void Set(int x, int y, int z, Vector3 position, float size, Sprite[] flowSprites, bool showflow, bool renderDownFlowingLiquid, bool renderFloatingLiquid)
     {
-
         X = x;
         Y = y;
+        Z = z;
         transform.position = position;
         transform.localScale = new Vector3(size, size, size);
-
     }
 
     public void SetType(CellType type)
@@ -141,7 +148,6 @@ public class Cell : MonoBehaviour
         FlowDirections[1] = false;
         FlowDirections[2] = false;
         FlowDirections[3] = false;
-
 
 
     }

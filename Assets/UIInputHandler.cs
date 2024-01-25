@@ -4,7 +4,7 @@ using SFB;
 public class UIInputHandler : MonoBehaviour
 {
     [SerializeField]
-    //private Grid grid;
+    private Grid grid;
 
     public void SaveSimulation()
     {
