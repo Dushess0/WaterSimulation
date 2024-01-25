@@ -72,7 +72,7 @@ public class Grid : MonoBehaviour
         cellContainer.transform.parent = this.transform;
 
         // Cells
-        for (int y = 0; y < Height; y++) 
+        for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
             {
@@ -89,7 +89,7 @@ public class Grid : MonoBehaviour
                     cell.Set(x, y, z, new Vector3(xpos, ypos, zpos), CellSize, LiquidFlowSprites, ShowFlow, RenderDownFlowingLiquid, RenderFloatingLiquid);
 
                     // add a border
-                    if (y == Height-1)
+                    if (y == Height - 1)
                     {
                         cell.SetType(CellType.Solid);
                     }
@@ -200,13 +200,14 @@ public class Grid : MonoBehaviour
     {
 
 
-        if (Input.GetMouseButtonDown(0)) // Left click
-        {
-            ModifyCell(true);
-        }
-        else if (Input.GetMouseButtonDown(1)) // Right click
+        if (Input.GetMouseButtonDown(0) && (Input.GetKey(KeyCode.LeftAlt)))
         {
             ModifyCell(false);
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+
+            ModifyCell(true);
         }
 
         // Run our liquid simulation 

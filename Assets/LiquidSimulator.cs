@@ -195,6 +195,68 @@ public class Liquid
                         continue;
                     }
 
+                    // Flow to forward cell
+                    if (cell.Forward != null && cell.Forward.Type == CellType.Blank)
+                    {
+                        // Calculate flow rate
+                        flow = (remainingValue - cell.Forward.Liquid) / 3f;
+                        if (flow > MinFlow)
+                            flow *= FlowSpeed;
+
+                        // Constrain flow
+                        flow = Mathf.Max(flow, 0);
+                        if (flow > Mathf.Min(MaxFlow, remainingValue))
+                            flow = Mathf.Min(MaxFlow, remainingValue);
+
+                        // Adjust temp values
+                        if (flow != 0)
+                        {
+                            remainingValue -= flow;
+                            Diffs[x, y, z] -= flow;
+                            Diffs[x, y, z + 1] += flow;
+                            cell.FlowDirections[(int)FlowDirection.Forward] = true;
+                            cell.Forward.Settled = false;
+                        }
+                    }
+
+                    if (remainingValue < MinValue)
+                    {
+                        Diffs[x, y, z] -= remainingValue;
+                        continue;
+                    }
+
+                    // Flow to backward cell
+                    if (cell.Backward != null && cell.Backward.Type == CellType.Blank)
+                    {
+                        // Calculate flow rate
+                        flow = (remainingValue - cell.Backward.Liquid) / 3f;
+                        if (flow > MinFlow)
+                            flow *= FlowSpeed;
+
+                        // Constrain flow
+                        flow = Mathf.Max(flow, 0);
+                        if (flow > Mathf.Min(MaxFlow, remainingValue))
+                            flow = Mathf.Min(MaxFlow, remainingValue);
+
+                        // Adjust temp values
+                        if (flow != 0)
+                        {
+                            remainingValue -= flow;
+                            Diffs[x, y, z] -= flow;
+                            Diffs[x, y, z - 1] += flow;
+                            cell.FlowDirections[(int)FlowDirection.Backward] = true;
+                            cell.Backward.Settled = false;
+                        }
+                    }
+
+
+                    // Check to ensure we still have liquid in this cell
+                    if (remainingValue < MinValue)
+                    {
+                        Diffs[x, y, z] -= remainingValue;
+                        continue;
+                    }
+
                     // Flow to Top cell
                     if (cell.Top != null && cell.Top.Type == CellType.Blank)
                     {
@@ -251,11 +313,11 @@ public class Liquid
             {
                 for (int z = 0; z < cells.GetLength(2); z++)
                 {
-                    cells[x, y, 0].Liquid += Diffs[x, y, z];//fix here
+                    cells[x, y, z].Liquid += Diffs[x, y, z];
                     if (cells[x, y, z].Liquid < MinValue)
-                    { // z is 0, fix it
+                    {
                         cells[x, y, z].Liquid = 0;
-                        cells[x, y, z].Settled = false; //default empty cell to unsettled
+                        cells[x, y, z].Settled = false;
                     }
                 }
             }

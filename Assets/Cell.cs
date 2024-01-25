@@ -58,7 +58,7 @@ public class Cell : MonoBehaviour
 
     // Shows flow direction of cell
     public int Bitmask { get; set; }
-    public bool[] FlowDirections = new bool[4];
+    public bool[] FlowDirections = new bool[6];
 
     // Liquid colors
     Color Color;
@@ -124,6 +124,10 @@ public class Cell : MonoBehaviour
         Z = z;
         transform.position = position;
         transform.localScale = new Vector3(size, size, size);
+        if(FlowDirections.Length <=4)
+        {
+            FlowDirections = new bool[6];
+        }
     }
 
     public void SetType(CellType type)
@@ -148,7 +152,8 @@ public class Cell : MonoBehaviour
         FlowDirections[1] = false;
         FlowDirections[2] = false;
         FlowDirections[3] = false;
-
+        FlowDirections[4] = false;
+        FlowDirections[5] = false;
 
     }
 

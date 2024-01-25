@@ -1,49 +1,54 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class Camera2D: MonoBehaviour
+public class Camera2D : MonoBehaviour
 {
-	public Transform Area;
+    public float moveSpeed = 5.0f;
+    public float turnSpeed = 5.0f;
+    public float zoomSpeed = 10.0f;
 
-	Vector3 CurrentPosition;
-	Vector3 CurrentScale;
+    private void Update()
+    {
+        // Get the input for horizontal and vertical movement (WASD keys)
+        float h = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
+        float v = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
 
-	//public void Set()
-	//{
-	//	float height = Area.localScale.y * 100;
-	//	float width = Area.localScale.x * 100;
+        // Calculate the forward and right direction relative to the camera's orientation
+        Vector3 forward = transform.forward;
+        forward.y = 0; // Keep the movement horizontal
+        forward.Normalize();
+        Vector3 right = transform.right;
+        right.y = 0; // Keep the movement horizontal
+        right.Normalize();
 
-	//	float w = Screen.width / width;
-	//	float h = Screen.height / height;
+        // Calculate the desired movement direction
+        Vector3 desiredMoveDirection = forward * v + right * h;
 
-	//	float ratio = w / h;
-	//	float size = (height / 2) / 100f;
+        // Space/Shift for vertical movement (up/down)
+        float y = 0;
+        if (Input.GetKey(KeyCode.Space))
+        {
+            y = moveSpeed * Time.deltaTime;
+        }
+        else if (Input.GetKey(KeyCode.LeftControl))
+        {
+            y = -moveSpeed * Time.deltaTime;
+        }
 
-	//	if (w < h)
-	//		size /= ratio;
+        // Mouse rotation
+        if (Input.GetMouseButton(1)) // Right mouse button for turning
+        {
+            float yaw = turnSpeed * Input.GetAxis("Mouse X");
+            float pitch = turnSpeed * Input.GetAxis("Mouse Y");
 
-	//	Camera.main.orthographicSize = size;
+            transform.eulerAngles += new Vector3(-pitch, yaw, 0);
+        }
 
-	//	Vector2 position = Area.transform.position;
+        // Mouse scroll for zoom
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        transform.position += transform.forward * scroll * zoomSpeed;
 
-	//	Vector3 camPosition = position;
-	//	Vector3 point = Camera.main.WorldToViewportPoint(camPosition);
-	//	Vector3 delta = camPosition - Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, point.z));
-	//	Vector3 destination = transform.position + delta;
-
-	//	transform.position = destination;
-	//}
-
-	//public void LateUpdate()
-	//{
-	//	if (CurrentPosition != Area.transform.position || CurrentScale != Area.transform.localScale) {
-	//		CurrentPosition = Area.transform.position;
-	//		CurrentScale = Area.transform.localScale;
-	//		Set ();	
-	//	}
-
-	//}
-
-
-
+        // Apply movement
+        transform.Translate(desiredMoveDirection, Space.World);
+        transform.Translate(0, y, 0, Space.World); // Apply vertical movement separately
+    }
 }
