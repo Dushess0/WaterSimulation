@@ -60,14 +60,6 @@ public class Cell : MonoBehaviour
     public int Bitmask { get; set; }
     public bool[] FlowDirections = new bool[6];
 
-    // Liquid colors
-    Color Color;
-    Color DarkColor = new Color(0, 0.1f, 0.2f, 1);
-
-
-    bool ShowFlow;
-    bool RenderDownFlowingLiquid;
-    bool RenderFloatingLiquid;
 
     private GameObject stone;
     private GameObject water;
@@ -124,7 +116,7 @@ public class Cell : MonoBehaviour
         Z = z;
         transform.position = position;
         transform.localScale = new Vector3(size, size, size);
-        if(FlowDirections.Length <=4)
+        if (FlowDirections.Length <= 4)
         {
             FlowDirections = new bool[6];
         }
@@ -176,50 +168,10 @@ public class Cell : MonoBehaviour
 
     public void Update()
     {
-
-        // Set background color based on cell type
-        if (Type == CellType.Solid)
-        {
-            //BackgroundSprite.color = Color.black;
-        }
-        else
-        {
-            //BackgroundSprite.color = Color.white;
-        }
-
-        // Update bitmask based on flow directions
-
-
-        if (ShowFlow)
-        {
-            // Show flow direction of this cell
-            //FlowSprite.sprite = FlowSprites [Bitmask];
-        }
-        else
-        {
-            //FlowSprite.sprite = FlowSprites [0];
-        }
-
-        // Set size of Liquid sprite based on liquid value
         UpdatePrefab();
-        //LiquidSprite.transform.localScale = new Vector2 (1, Mathf.Min (1, Liquid));	
 
-        //// Optional rendering flags
-        //if (!RenderFloatingLiquid) {
-        //	// Remove "Floating" liquids
-        //	if (Bottom != null && Bottom.Type != CellType.Solid && Bottom.Liquid <= 0.99f) {
-        //		LiquidSprite.transform.localScale = new Vector2 (0, 0);	
-        //	}
-        //}
-        //if (RenderDownFlowingLiquid) {
-        //	// Fill out cell if cell above it has liquid
-        //	if (Type == CellType.Blank && Top != null && (Top.Liquid > 0.05f || Top.Bitmask == 4)) {
-        //		LiquidSprite.transform.localScale = new Vector2 (1, 1);	
-        //	}
-        //}
-
-        //// Set color based on pressure in cell
-        //LiquidSprite.color = Color.Lerp (Color, DarkColor, Liquid / 4f);
     }
+
+   
 
 }
