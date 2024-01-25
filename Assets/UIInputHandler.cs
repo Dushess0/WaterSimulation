@@ -222,7 +222,7 @@ public class UIInputHandler : MonoBehaviour
         {
             return;
         }
-        if(!EventSystem.current.IsPointerOverGameObject()) return;
+        if(EventSystem.current.IsPointerOverGameObject()) return;
         if (Input.GetMouseButton(0))
         {
             ModifyCell();
