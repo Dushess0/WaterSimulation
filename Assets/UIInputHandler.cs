@@ -3,6 +3,7 @@ using SFB;
 using System.IO;
 using System.Linq;
 using System.Text;
+using UnityEngine.EventSystems;
 
 public class UIInputHandler : MonoBehaviour
 {
@@ -221,6 +222,7 @@ public class UIInputHandler : MonoBehaviour
         {
             return;
         }
+        if(!EventSystem.current.IsPointerOverGameObject()) return;
         if (Input.GetMouseButton(0))
         {
             ModifyCell();
