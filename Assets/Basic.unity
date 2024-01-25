@@ -710,7 +710,7 @@ GameObject:
   - component: {fileID: 1236882243}
   - component: {fileID: 1236882242}
   m_Layer: 5
-  m_Name: dirt
+  m_Name: grass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -787,7 +787,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 99997
+          m_IntArgument: 99996
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -812,7 +812,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 877d6c7271646ba418800ae36c599a53, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 26ed8dbaf1ea7074d92bf0d67c2ef54b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

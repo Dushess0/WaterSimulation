@@ -59,7 +59,7 @@ MonoBehaviour:
     type: 3}
   glassPrefab: {fileID: 4233009679055714994, guid: a59ae2b661ab5da46a07d7bd63561f64,
     type: 3}
-  dirtPrefab: {fileID: 4233009679055714994, guid: 6e94442b435ac3e4099ae1b44543fc10,
+  grassPrefab: {fileID: 4233009679055714994, guid: 6e94442b435ac3e4099ae1b44543fc10,
     type: 3}
   metalPrefab: {fileID: 4233009679055714994, guid: dfeebf4dc6adf9449995a2026948bcf2,
     type: 3}
