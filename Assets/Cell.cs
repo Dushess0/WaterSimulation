@@ -1,9 +1,16 @@
 ﻿using UnityEngine;
+using static UnityEngine.Rendering.DebugUI.MessageBox;
 
 public enum CellType
 {
     Blank,
     Solid
+}
+public enum CellStyle
+{
+    Metal = 99998,
+    Glass = 99997,
+    Stone = 99999
 }
 
 public enum FlowDirection
@@ -24,6 +31,34 @@ public class Cell : MonoBehaviour
     public int X;
     public int Y;
     public int Z;
+
+    private CellStyle _style= CellStyle.Stone;
+
+    public CellStyle Style
+    {
+        get
+        {
+            return _style;
+        }
+        set
+        {
+            Destroy(solid);
+
+            if (value == CellStyle.Stone)
+            {
+                solid = Instantiate(stonePrefab, transform.position, Quaternion.identity, transform);
+            }
+            if (value == CellStyle.Metal)
+            {
+                solid = Instantiate(metalPrefab, transform.position, Quaternion.identity, transform);
+            }
+            if (value == CellStyle.Glass)
+            {
+                solid = Instantiate(glassPrefab, transform.position, Quaternion.identity, transform);
+            }
+            _style = value;
+        }
+    }
 
 
     // Amount of liquid in this cell
@@ -61,16 +96,18 @@ public class Cell : MonoBehaviour
     public bool[] FlowDirections = new bool[6];
 
 
-    private GameObject stone;
+    private GameObject solid;
     private GameObject water;
     public GameObject stonePrefab;
+    public GameObject glassPrefab;
+    public GameObject metalPrefab;
+
     public GameObject waterPrefab;
 
 
     void Awake()
     {
-        // todo
-        stone = Instantiate(stonePrefab, transform.position, Quaternion.identity, transform);
+        solid = Instantiate(stonePrefab, transform.position, Quaternion.identity, transform);
         water = Instantiate(waterPrefab, transform.position, Quaternion.identity, transform);
         UpdatePrefab();
 
@@ -79,14 +116,14 @@ public class Cell : MonoBehaviour
     {
         if (Type == CellType.Solid)
         {
-            stone.SetActive(true);
+            solid.SetActive(true);
             water.SetActive(false);
-            stone.transform.localPosition = new Vector3(0, 0, 0);
+            solid.transform.localPosition = new Vector3(0, 0, 0);
 
         }
         else
         {
-            stone.SetActive(false);
+            solid.SetActive(false);
             if (Liquid < 0.01f)
             {
                 water.SetActive(false);
@@ -109,7 +146,7 @@ public class Cell : MonoBehaviour
 
     }
 
-    public void Set(int x, int y, int z, Vector3 position, float size, Sprite[] flowSprites, bool showflow, bool renderDownFlowingLiquid, bool renderFloatingLiquid)
+    public void Set(int x, int y, int z, Vector3 position, float size)
     {
         X = x;
         Y = y;
@@ -128,6 +165,16 @@ public class Cell : MonoBehaviour
         if (Type == CellType.Solid)
         {
             Liquid = 0;
+        }
+        UnsettleNeighbors();
+    }
+    public void SetType(CellType type, CellStyle style)
+    {
+        Type = type;
+        if (Type == CellType.Solid)
+        {
+            Liquid = 0;
+            Style = style;
         }
         UnsettleNeighbors();
     }
@@ -172,6 +219,6 @@ public class Cell : MonoBehaviour
 
     }
 
-   
+
 
 }

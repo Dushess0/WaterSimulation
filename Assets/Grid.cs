@@ -40,7 +40,7 @@ namespace WaterSimulation
         Sprite[] LiquidFlowSprites;
 
 
-        private Camera cam;
+
 
         public GameObject cellPrefab;
 
@@ -49,9 +49,6 @@ namespace WaterSimulation
 
         void Awake()
         {
-            cam = Camera.main; // Ensure you have a main camera tagged
-
-
             // Load some sprites to show the liquid flow directions
 
             // Generate our viewable grid GameObjects
@@ -88,7 +85,7 @@ namespace WaterSimulation
                         float ypos = offset.y - (y * CellSize) - (LineWidth * y) - LineWidth;
                         float zpos = offset.z + (z * CellSize) - (LineWidth * z) - LineWidth;
 
-                        cell.Set(x, y, z, new Vector3(xpos, ypos, zpos), CellSize, LiquidFlowSprites, ShowFlow, RenderDownFlowingLiquid, RenderFloatingLiquid);
+                        cell.Set(x, y, z, new Vector3(xpos, ypos, zpos), CellSize);
 
                         // add a border
                         if (y == Height - 1)
@@ -132,12 +129,12 @@ namespace WaterSimulation
                         float ypos = offset.y - (y * CellSize) - (LineWidth * y) - LineWidth;
                         float zpos = offset.z + (z * CellSize) - (LineWidth * z) - LineWidth;
 
-                        cell.Set(x, y, z, new Vector3(xpos, ypos, zpos), CellSize, LiquidFlowSprites, ShowFlow, RenderDownFlowingLiquid, RenderFloatingLiquid);
+                        cell.Set(x, y, z, new Vector3(xpos, ypos, zpos), CellSize);
 
                         // Set cell type and liquid based on input array
-                        if (cellValues[x, y, z] == 99999)
+                        if (cellValues[x, y, z] > 1000)
                         {
-                            cell.SetType(CellType.Solid);
+                            cell.SetType(CellType.Solid, (CellStyle)cellValues[x, y, z]);
                         }
                         else
                         {
@@ -151,27 +148,6 @@ namespace WaterSimulation
                 }
             }
             UpdateNeighbors();
-        }
-        // Live update the grid properties
-        void RefreshGrid()
-        {
-
-            Vector2 offset = this.transform.position;
-
-
-            // Cells
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    float xpos = offset.x + (x * CellSize) + (LineWidth * x) + LineWidth;
-                    float ypos = offset.y - (y * CellSize) - (LineWidth * y) - LineWidth;
-                    Cells[x, y, 0].Set(x, y, 0, new Vector2(xpos, ypos), CellSize, LiquidFlowSprites, ShowFlow, RenderDownFlowingLiquid, RenderFloatingLiquid);
-
-                }
-            }
-
-          
         }
 
         // Sets neighboring cell references
@@ -217,49 +193,13 @@ namespace WaterSimulation
             }
         }
 
-        private void ModifyCell(bool addWater)
-        {
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit))
-            {
-                Vector3 hitPoint = hit.point;
-                Cell cell = hit.collider.GetComponent<Cell>();
-                var target = Cells[cell.X, cell.Y, cell.Z];
-                if (addWater)
-                {
-                    target.AddLiquid(5);
-                }
-                else
-                {
-                    if (cell.Type == CellType.Blank)
-                        target.SetType(CellType.Solid);
-                    else
-                        target.SetType(CellType.Blank);
-
-                }
-            }
-        }
 
         void Update()
         {
-
-
-            if (Input.GetMouseButtonDown(0) && (Input.GetKey(KeyCode.LeftAlt)))
-            {
-                ModifyCell(false);
-            }
-            else if (Input.GetMouseButtonDown(0))
-            {
-
-                ModifyCell(true);
-            }
-
-            // Run our liquid simulation 
             LiquidSimulator.Simulate(ref Cells);
         }
-       
+
     }
-   
+
 }

@@ -45,14 +45,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ce9a70218c98e24fb3930bc30e71013, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  X: 0
+  Y: 0
+  Z: 0
   Top: {fileID: 0}
   Bottom: {fileID: 0}
   Left: {fileID: 0}
   Right: {fileID: 0}
   Forward: {fileID: 0}
   Backward: {fileID: 0}
-  FlowDirections: 00000000
+  FlowDirections: 000000000000
   stonePrefab: {fileID: 4233009679055714994, guid: fa6e6bbad6e30d3499b986eecaeb5800,
+    type: 3}
+  glassPrefab: {fileID: 4233009679055714994, guid: a59ae2b661ab5da46a07d7bd63561f64,
+    type: 3}
+  metalPrefab: {fileID: 4233009679055714994, guid: dfeebf4dc6adf9449995a2026948bcf2,
     type: 3}
   waterPrefab: {fileID: 220231229427162382, guid: 273b20bdadfcd474b9ad98354c644412,
     type: 3}

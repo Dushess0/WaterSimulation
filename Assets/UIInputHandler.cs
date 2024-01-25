@@ -6,15 +6,15 @@ using System.Text;
 
 public class UIInputHandler : MonoBehaviour
 {
+    private Camera cam;
     [SerializeField]
     private WaterSimulation.Grid grid;
 
     private float[,,] ParseCSV(string[] lines)
     {
-        // Assuming the depth is equal to the number of groups of lines divided by the height
-        int height = lines[0].Split(',').Length; // Assuming height is consistent across all z-levels
-        int depth = lines.Length / height; // Calculate depth based on total lines and height
-        int width = lines[0].Split(',').Length; // Assuming width is consistent across all z-levels
+        int height = lines[0].Split(',').Length;
+        int depth = lines.Length / height;
+        int width = lines[0].Split(',').Length;
 
         float[,,] cellValues = new float[width, height, depth];
 
@@ -41,6 +41,7 @@ public class UIInputHandler : MonoBehaviour
         return cellValues;
     }
 
+    public int selectedBlock = 0;
     public void SaveSimulation()
     {
         var extensionList = new[] { new ExtensionFilter("CSV Files", "csv") };
@@ -68,7 +69,15 @@ public class UIInputHandler : MonoBehaviour
                 for (int x = 0; x < width; x++)
                 {
                     Cell cell = cells[x, y, z];
-                    float value = cell.Type == CellType.Solid ? 99999 : cell.Liquid;
+                    float value = 0;
+                    if (cell.Type == CellType.Solid)
+                    {
+                        value = (float)cell.Style;
+                    }
+                    else
+                    {
+                        value = cell.Liquid;
+                    }
                     csvBuilder.Append(value);
 
                     if (x < width - 1)
@@ -92,9 +101,51 @@ public class UIInputHandler : MonoBehaviour
         if (paths.Length > 0 && !string.IsNullOrEmpty(paths[0]))
         {
             string[] lines = File.ReadAllLines(paths[0]);
-            
+
             float[,,] cellValues = ParseCSV(lines);
             grid.CreateGrid(cellValues);
         }
     }
+
+    private void ModifyCell()
+    {
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            Vector3 hitPoint = hit.point;
+            Cell cell = hit.collider.GetComponent<Cell>();
+            var target = grid.Cells[cell.X, cell.Y, cell.Z];
+            if (selectedBlock == 0)
+            {
+                target.AddLiquid(5);
+            }
+            else
+            {
+
+                target.SetType(CellType.Solid, (CellStyle)selectedBlock);
+
+
+            }
+        }
+    }
+    void Awake()
+    {
+        cam = Camera.main; // Ensure you have a main camera tagged
+    }
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            ModifyCell();
+        }
+
+
+    }
+    public void SetBlock(int block)
+    {
+        selectedBlock = block;
+    }
+     
 }
