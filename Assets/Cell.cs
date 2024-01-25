@@ -10,7 +10,8 @@ public enum CellStyle
 {
     Metal = 99998,
     Glass = 99997,
-    Stone = 99999
+    Stone = 99999,
+    Dirt = 99996
 }
 
 public enum FlowDirection
@@ -56,6 +57,10 @@ public class Cell : MonoBehaviour
             {
                 solid = Instantiate(glassPrefab, transform.position, Quaternion.identity, transform);
             }
+            if (value == CellStyle.Dirt)
+            {
+                solid = Instantiate(dirtPrefab, transform.position, Quaternion.identity, transform);
+            }
             _style = value;
         }
     }
@@ -100,6 +105,8 @@ public class Cell : MonoBehaviour
     private GameObject water;
     public GameObject stonePrefab;
     public GameObject glassPrefab;
+    public GameObject dirtPrefab;
+
     public GameObject metalPrefab;
 
     public GameObject waterPrefab;
