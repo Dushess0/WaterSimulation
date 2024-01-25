@@ -19,6 +19,7 @@ public class FreeCamera : MonoBehaviour
         mouseSpeed = 1;
         Cursor.lockState = CursorLockMode.None; // Free the cursor
         Cursor.visible = true; // Show cursor
+        isCursorLocked = false;
 
     }
     private void ToggleCursorMode()
@@ -44,6 +45,7 @@ public class FreeCamera : MonoBehaviour
         {
             ToggleCursorMode();
         }
+        if (!isCursorLocked) { return; }
 
         // Position
         positionVector.x = Input.GetAxis("Horizontal");
