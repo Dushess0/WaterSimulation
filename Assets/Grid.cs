@@ -14,30 +14,16 @@ namespace WaterSimulation
         [SerializeField]
         [Range(0.1f, 1f)]
         float CellSize = 1;
-        float PreviousCellSize = 1;
 
         [SerializeField]
         [Range(0f, 0.1f)]
         float LineWidth = 0;
-        float PreviousLineWidth = 0;
 
-        [SerializeField]
-        Color LineColor = Color.black;
-        Color PreviousLineColor = Color.black;
 
-        [SerializeField]
-        bool ShowFlow = true;
-
-        [SerializeField]
-        bool RenderDownFlowingLiquid = false;
-
-        [SerializeField]
-        bool RenderFloatingLiquid = false;
 
         public Cell[,,] Cells;
 
         Liquid LiquidSimulator;
-        Sprite[] LiquidFlowSprites;
 
 
 
@@ -45,20 +31,16 @@ namespace WaterSimulation
         public GameObject cellPrefab;
 
 
-        bool Fill;
 
         void Awake()
         {
-            // Load some sprites to show the liquid flow directions
 
-            // Generate our viewable grid GameObjects
             CreateGrid();
 
             // Initialize the liquid simulator
             LiquidSimulator = new Liquid();
             LiquidSimulator.Initialize(Cells);
         }
-        //GetSerializableData()
         void CreateGrid()
         {
 
@@ -184,7 +166,7 @@ namespace WaterSimulation
                         {
                             Cells[x, y, z].Backward = Cells[x, y, z - 1];
                         }
-                        if (z < Height - 1) // Assuming the depth is also 'Height', adjust if needed
+                        if (z < Height - 1)
                         {
                             Cells[x, y, z].Forward = Cells[x, y, z + 1];
                         }

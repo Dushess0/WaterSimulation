@@ -127,7 +127,7 @@ public class Liquid
                     // Check to ensure we still have liquid in this cell
                     if (remainingValue < MinValue)
                     {
-                        Diffs[x, y, z] -= remainingValue; //fix here
+                        Diffs[x, y, z] -= remainingValue; 
                         continue;
                     }
 
@@ -149,8 +149,8 @@ public class Liquid
                         if (flow != 0)
                         {
                             remainingValue -= flow;
-                            Diffs[x, y, z] -= flow;//fix here
-                            Diffs[x - 1, y, z] += flow;//fix here
+                            Diffs[x, y, z] -= flow;
+                            Diffs[x - 1, y, z] += flow;
                             cell.FlowDirections[(int)FlowDirection.Left] = true;
                             cell.Left.Settled = false;
                         }
@@ -181,8 +181,8 @@ public class Liquid
                         if (flow != 0)
                         {
                             remainingValue -= flow;
-                            Diffs[x, y, z] -= flow;//fix here
-                            Diffs[x + 1, y, z] += flow;//fix here
+                            Diffs[x, y, z] -= flow;
+                            Diffs[x + 1, y, z] += flow;
                             cell.FlowDirections[(int)FlowDirection.Right] = true;
                             cell.Right.Settled = false;
                         }
